@@ -1,44 +1,92 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useLocation } from 'react-router-dom';
+import { Suspense, useEffect, useState } from 'react';
+import {
+  Link,
+  NavLink,
+  Outlet,
+  useLocation,
+  useParams,
+} from 'react-router-dom';
+import { getMovieById } from 'services/getMovies';
+import { BASE_POSTER_URL, PLACEHOLDER } from 'utils/constants';
+import {
+  FilmWrapper,
+  StyledList,
+  ListItem,
+  FilmImg,
+  FilmTitle,
+  FilmDescr,
+  GoBackLink,
+  FilmSubTitle,
+  StyledListDescr,
+} from './MoviesDetails.module';
 
-const API_KEY = '2d96552602a88b0c01772770d305e99e';
-const API_URL = 'https://api.themoviedb.org/3/movie';
-
-function MovieDetails() {
+const MoviesDetails = () => {
+  const { movieId } = useParams();
+  const [movie, setMovie] = useState('');
   const location = useLocation();
-  const movieId = location.pathname.split("/").pop();
 
-  const [movieDetails, setMovieDetails] = useState(null);
-
+  const backLinkHref = location.state?.from ?? '/movies';
   useEffect(() => {
-    fetchMovieDetails();
+    const fetchMovieById = async () => {
+      try {
+        const movieById = await getMovieById(movieId);
+        setMovie(movieById);
+      } catch (e) {
+        console.log(e);
+      }
+    };
+    fetchMovieById();
   }, [movieId]);
 
-  const fetchMovieDetails = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/${movieId}`, {
-        params: {
-          api_key: API_KEY,
-        },
-      });
-      setMovieDetails(response.data);
-    } catch (error) {
-      console.error('Error fetching movie details:', error);
-    }
-  };
-
-  if (!movieDetails) {
-    return ;
-  }
-
   return (
-    <div>
-      <h2>{movieDetails.title}</h2>
-      <p>{movieDetails.overview}</p>
-      <p>Рік виходу: {movieDetails.release_date}</p>
-    </div>
+    <>
+      <GoBackLink>
+        <Link to={backLinkHref}>
+          Go back<span>.</span>
+        </Link>
+      </GoBackLink>
+      <FilmWrapper>
+        <FilmImg
+          src={`${
+            movie.poster_path
+              ? BASE_POSTER_URL + movie.poster_path
+              : PLACEHOLDER + '?text=' + movie.original_title
+          }`}
+          alt="get"
+        />
+        <div>
+          <FilmTitle>{movie.original_title}</FilmTitle>
+          <FilmSubTitle>Rating: {Math.round(movie.vote_average)}</FilmSubTitle>
+          <FilmSubTitle>Overview</FilmSubTitle>
+          <FilmDescr>{movie.overview}</FilmDescr>
+          <FilmSubTitle>Genres</FilmSubTitle>
+          <StyledListDescr>
+            {movie.genres?.map(genre => (
+              <li key={genre.id}>{genre.name}</li>
+            ))}
+          </StyledListDescr>
+        </div>
+      </FilmWrapper>
+      <div>
+        <h2>Additional information</h2>
+        <StyledList>
+          <ListItem>
+            <NavLink to="cast" state={location.state}>
+              Cast<span>.</span>
+            </NavLink>
+          </ListItem>
+          <ListItem>
+            <NavLink to="reviews" state={location.state}>
+              Reviews<span>.</span>
+            </NavLink>
+          </ListItem>
+        </StyledList>
+        <Suspense fallback={<div>Loading subpage...</div>}>
+          <Outlet />
+        </Suspense>
+      </div>
+    </>
   );
-}
+};
 
-export default MovieDetails;
+export default MoviesDetails;
