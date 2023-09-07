@@ -19,7 +19,7 @@ export const App = () => {
         <Route path="movies/:movieId" element={<MoviesDetails />}>
           <Route path="cast" element={<Cast />} />
           <Route path="reviews" element={<Reviews />} />
-          <Route path="about" element={<Navigate to="/about" />} />
+          {/* <Route path="about" element={<Navigate to="/about" />} /> */}
         </Route>
       </Route>
     </Routes>
