@@ -64,10 +64,9 @@ import { ListItem, StyledList } from '../Cast/Cast.module';
 
 const Cast = () => {
   const { movieId } = useParams();
-  const navigate = useNavigate();
 
   const [cast, setCast] = useState([]);
-  const [notFound, setNotFound] = useState(false);
+  
 
   useEffect(() => {
     const fetchCast = async () => {
@@ -76,7 +75,6 @@ const Cast = () => {
         setCast(cast);
       } catch (e) {
         console.log(e);
-        setNotFound(true);
       }
     };
     fetchCast();
