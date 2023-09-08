@@ -30,7 +30,7 @@
 import { lazy } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import SharedLayout from '../SharedLayout/SharedLayout';
-import About from '../../page/About/About'; 
+
 
 const Home = lazy(() => import('../../page/Home/Home'));
 const MoviesDetails = lazy(() =>
@@ -47,10 +47,9 @@ export const App = () => {
         <Route index element={<Home />} />
         <Route path="movies" element={<Movies />} />
         <Route path="movies/:movieId" element={<MoviesDetails />}>
+        <Route path="*" element={<Navigate to="/" />} />
           <Route path="cast" element={<Cast />} />
           <Route path="reviews" element={<Reviews />} />
-          <Route path="about" element={<About />} /> 
-          <Route path="about" element={<Navigate to="/about" />} />
         </Route>
       </Route>
     </Routes>
